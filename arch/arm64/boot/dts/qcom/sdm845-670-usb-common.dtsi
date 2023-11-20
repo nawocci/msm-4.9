@@ -75,6 +75,7 @@
 			interrupts = <0 133 0>;
 			//usb-phy = <&qusb_phy0>, <&usb_qmp_dp_phy>;
 			usb-phy = <&qusb_phy0>, <&usb_nop_phy>;
+			maximum-speed = "high-speed";
 			tx-fifo-resize;
 			linux,sysdev_is_parent;
 			snps,disable-clk-gating;
