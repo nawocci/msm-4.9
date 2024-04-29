@@ -106,4 +106,9 @@ source "drivers/staging/greybus/Kconfig"
 
 source "drivers/staging/vc04_services/Kconfig"
 
+config QCA_CLD_WLAN
+	bool "Qualcomm Atheros CLD WLAN module"
+	help
+	  Add support for the Qualcomm Atheros CLD WLAN module.
+
 endif # STAGING
