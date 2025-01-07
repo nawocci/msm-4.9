@@ -912,7 +912,7 @@ icmp_ratelimit - INTEGER
 icmp_msgs_per_sec - INTEGER
 	Limit maximal number of ICMP packets sent per second from this host.
 	Only messages whose type matches icmp_ratemask (see below) are
-	controlled by this limit.For security reasons, the precise count
+	controlled by this limit. For security reasons, the precise count
 	of messages per second is randomized.
 	Default: 1000
 
