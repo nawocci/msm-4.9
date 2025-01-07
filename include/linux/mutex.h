@@ -64,6 +64,9 @@ struct mutex {
 #ifdef CONFIG_DEBUG_LOCK_ALLOC
 	struct lockdep_map	dep_map;
 #endif
+#ifdef OPLUS_FEATURE_UIFIRST
+	struct task_struct *ux_dep_task;
+#endif /* OPLUS_FEATURE_UIFIRST */
 };
 
 /*

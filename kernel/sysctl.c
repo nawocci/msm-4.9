@@ -281,6 +281,32 @@ static int max_sched_tunable_scaling = SCHED_TUNABLESCALING_END-1;
 #endif /* CONFIG_SMP */
 #endif /* CONFIG_SCHED_DEBUG */
 
+#ifdef VENDOR_EDIT
+int sysctl_slide_boost_enabled = 0;
+int sysctl_boost_task_threshold = 51;
+#ifdef CONFIG_CAMERA_OPT
+int sysctl_camera_opt_enabled = 0;
+#endif
+int sysctl_frame_rate = 60;
+int sched_frame_rate_handler(struct ctl_table *table, int write, void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	int ret;
+
+	if (write && *ppos)
+		*ppos = 0;
+
+	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+
+	return ret;
+}
+#endif
+
+#ifdef OPLUS_FEATURE_UIFIRST
+int sysctl_uifirst_enabled = 1;
+int sysctl_launcher_boost_enabled = 0;
+int sysctl_animation_type = 0;
+#endif /* OPLUS_FEATURE_UIFIRST */
+
 #ifdef CONFIG_COMPACTION
 static int min_extfrag_threshold;
 static int max_extfrag_threshold = 1000;

@@ -45,6 +45,9 @@ struct rw_semaphore {
 	/* count for waiters preempt to queue in wait list */
 	long m_count;
 #endif
+#ifdef OPLUS_FEATURE_UIFIRST
+	struct task_struct *ux_dep_task;
+#endif /* OPLUS_FEATURE_UIFIRST */
 };
 
 extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);

@@ -253,6 +253,9 @@ void inc_rq_walt_stats(struct rq *rq, struct task_struct *p)
 	walt_inc_cumulative_runnable_avg(rq, p);
 }
 
+#ifdef VENDOR_EDIT
+__read_mostly unsigned int walt_scale_demand_divisor;
+#endif /* VENDOR_EDIT */
 void dec_rq_walt_stats(struct rq *rq, struct task_struct *p)
 {
 	dec_nr_big_task(&rq->walt_stats, p);

@@ -140,6 +140,43 @@ static int scm_set_dload_mode(int arg1, int arg2)
 				&desc);
 }
 
+#ifdef OPLUS_BUG_STABILITY
+bool is_fulldump_enable(void)
+{
+	return download_mode && (dload_type & SCM_DLOAD_FULLDUMP);
+}
+
+void oppo_switch_fulldump(int on)
+{
+	int ret;
+
+	if (dload_mode_addr) {
+		__raw_writel(0xE47B337D, dload_mode_addr);
+		__raw_writel(0xCE14091A,
+			dload_mode_addr + sizeof(unsigned int));
+		mb();
+	}
+	if(on){
+		ret = scm_set_dload_mode(SCM_DLOAD_FULLDUMP, 0);
+		if (ret)
+			pr_err("Failed to set secure DLOAD mode: %d\n", ret);
+		dload_type = SCM_DLOAD_FULLDUMP;
+	}else{
+		ret = scm_set_dload_mode(SCM_DLOAD_MINIDUMP, 0);
+		if (ret)
+			pr_err("Failed to set secure DLOAD mode: %d\n", ret);
+		dload_type = SCM_DLOAD_MINIDUMP;
+	}
+
+	if(dload_type == SCM_DLOAD_MINIDUMP)
+		__raw_writel(EMMC_DLOAD_TYPE, dload_type_addr);
+	else
+		__raw_writel(0, dload_type_addr);
+	dload_mode_enabled = on;
+}
+EXPORT_SYMBOL(oppo_switch_fulldump);
+#endif /* OPLUS_BUG_STABILITY */
+
 static void set_dload_mode(int on)
 {
 	int ret;

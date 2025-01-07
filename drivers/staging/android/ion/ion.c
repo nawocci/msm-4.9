@@ -48,6 +48,16 @@
 #include "ion_priv.h"
 #include "compat_ion.h"
 
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPLUS_HEALTHINFO) && defined (CONFIG_OPLUS_MEM_MONITOR)
+#include <linux/oplus_healthinfo/memory_monitor.h>
+#endif /*VENDOR_EDIT*/
+
+#ifdef VENDOR_EDIT
+#include <linux/oplus_healthinfo/ion.h>
+
+static struct ion_heap *sys_heap;
+#endif /*VENDOR_EDIT*/
+
 /**
  * struct ion_device - the metadata of the ion device node
  * @dev:		the actual misc device
@@ -182,6 +192,8 @@ static void ion_buffer_add(struct ion_device *dev,
 }
 
 /* this function should only be called while dev->lock is held */
+extern bool ion_cnt_enable;
+extern atomic_long_t ion_total_size;
 static struct ion_buffer *ion_buffer_create(struct ion_heap *heap,
 				     struct ion_device *dev,
 				     unsigned long len,
@@ -267,6 +279,12 @@ static struct ion_buffer *ion_buffer_create(struct ion_heap *heap,
 	ion_buffer_add(dev, buffer);
 	mutex_unlock(&dev->buffer_lock);
 	atomic_long_add(len, &heap->total_allocated);
+
+#ifdef VENDOR_EDIT
+	if (ion_cnt_enable)
+		atomic_long_add(buffer->size, &ion_total_size);
+#endif
+
 	return buffer;
 
 err:
@@ -285,6 +303,12 @@ void ion_buffer_destroy(struct ion_buffer *buffer)
 			     __func__);
 		buffer->heap->ops->unmap_kernel(buffer->heap, buffer);
 	}
+
+#ifdef VENDOR_EDIT
+	if (ion_cnt_enable)
+		atomic_long_sub(buffer->size, &ion_total_size);
+#endif /*VENDOR_EDIT*/
+
 	buffer->heap->ops->unmap_dma(buffer->heap, buffer);
 
 	atomic_long_sub(buffer->size, &buffer->heap->total_allocated);
@@ -1884,6 +1908,80 @@ static void ion_heap_print_debug(struct seq_file *s, struct ion_heap *heap)
 	}
 }
 
+#ifdef VENDOR_EDIT
+int lowmem_dbg_dump_ion(void )
+{
+	struct ion_heap *heap;
+	struct ion_device *dev;
+	struct rb_node *n;
+	size_t total_size = 0;
+	size_t total_orphaned_size = 0;
+
+	if (unlikely(!sys_heap)) {
+		pr_err("g_ion_device is null.\n");
+		return 0;
+	}
+
+	heap = sys_heap;
+	dev = heap->dev;
+
+	pr_info("%16s %16s %16s\n", "client", "pid", "size");
+	pr_info("----------------------------------------------------\n");
+	down_read(&dev->lock);
+	for (n = rb_first(&dev->clients); n; n = rb_next(n)) {
+		struct ion_client *client = rb_entry(n, struct ion_client,
+						     node);
+		size_t size = ion_debug_heap_total(client, heap->id);
+
+		if (!size)
+			continue;
+		if (client->task) {
+			char task_comm[TASK_COMM_LEN];
+
+			get_task_comm(task_comm, client->task);
+			pr_info("%16s %16u %16zu\n", task_comm,
+				client->pid, size);
+		} else {
+			pr_info("%16s %16u %16zu\n", client->name,
+				client->pid, size);
+		}
+	}
+	up_read(&dev->lock);
+
+	pr_info("----------------------------------------------------\n");
+	pr_info("orphaned allocations (info is from last known client):\n");
+	mutex_lock(&dev->buffer_lock);
+	for (n = rb_first(&dev->buffers); n; n = rb_next(n)) {
+		struct ion_buffer *buffer = rb_entry(n, struct ion_buffer,
+						     node);
+		if (buffer->heap->id != heap->id)
+			continue;
+		total_size += buffer->size;
+		if (!buffer->handle_count) {
+			pr_info("%16s %16u %16zu %d %d\n",
+				buffer->task_comm, buffer->pid,
+				buffer->size, buffer->kmap_cnt,
+				atomic_read(&buffer->ref.refcount));
+			total_orphaned_size += buffer->size;
+		}
+	}
+	mutex_unlock(&dev->buffer_lock);
+	pr_info("----------------------------------------------------\n");
+	pr_info("%16s %16zu\n", "total orphaned",
+		total_orphaned_size);
+	pr_info("%16s %16zu\n", "total ", total_size);
+	if (heap->flags & ION_HEAP_FLAG_DEFER_FREE)
+		pr_info("%16s %16zu\n", "deferred free",
+			heap->free_list_size);
+	pr_info("----------------------------------------------------\n");
+
+
+	return 0;
+
+}
+EXPORT_SYMBOL(lowmem_dbg_dump_ion);
+#endif /*VENDOR_EDIT*/
+
 static int ion_debug_heap_show(struct seq_file *s, void *unused)
 {
 	struct ion_heap *heap = s->private;
@@ -2073,6 +2171,11 @@ void ion_device_add_heap(struct ion_device *dev, struct ion_heap *heap)
 				path, debug_name);
 		}
 	}
+
+#ifdef VENDOR_EDIT
+	if (heap->name && !strcmp(heap->name, "system"))
+		sys_heap = heap;
+#endif /*VENDOR_EDIT*/
 
 	up_write(&dev->lock);
 }

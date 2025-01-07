@@ -82,6 +82,11 @@ static inline void rwsem_set_reader_owned(struct rw_semaphore *sem)
 
 #define RWSEM_MAX_PREEMPT_ALLOWED 3000
 
+
+#ifdef OPLUS_FEATURE_UIFIRST
+extern bool test_task_ux(struct task_struct *task);
+#endif /* OPLUS_FEATURE_UIFIRST */
+
 /*
  * Return true if current waiter is added in the front of the rwsem wait list.
  */
