@@ -38,6 +38,32 @@ void disable_sched_clock_irqtime(void)
 	sched_clock_irqtime = 0;
 }
 
+#ifdef VENDOR_EDIT
+unsigned int sysctl_task_cpustats_enable = 0;
+DEFINE_PER_CPU(struct kernel_task_cpustat, ktask_cpustat);
+static void account_task_time(struct task_struct *p, unsigned int ticks,
+		enum cpu_usage_stat type)
+{
+	struct kernel_task_cpustat *kstat;
+	int idx;
+	struct task_cpustat *s;
+	if (!sysctl_task_cpustats_enable)
+		return;
+	kstat = this_cpu_ptr(&ktask_cpustat);
+	idx = kstat->idx;
+	s = &kstat->cpustat[idx];
+	s->pid = p->pid;
+	s->tgid = p->tgid;
+	s->type = type;
+	s->freq = cpufreq_quick_get(p->cpu);
+	s->begin = jiffies - cputime_one_jiffy * ticks;
+	s->end = jiffies;
+	memcpy(s->comm, p->comm, TASK_COMM_LEN);
+	kstat->idx = (idx + 1) % MAX_CTP_WINDOW;
+}
+#endif /* VENDOR_EDIT */
+
+
 static void irqtime_account_delta(struct irqtime *irqtime, u64 delta,
 				  enum cpu_usage_stat idx)
 {

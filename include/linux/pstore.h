@@ -46,9 +46,7 @@ enum pstore_type_id {
 	PSTORE_TYPE_PPC_COMMON	= 6,
 	PSTORE_TYPE_PMSG	= 7,
 	PSTORE_TYPE_PPC_OPAL	= 8,
-#ifdef OPLUS_FEATURE_DUMPDEVICE
 	PSTORE_TYPE_DEVICE_INFO	= 9,
-#endif /* OPLUS_FEATURE_DUMPDEVICE */
 	PSTORE_TYPE_UNKNOWN	= 255
 };
 
@@ -97,7 +95,7 @@ extern void pstore_unregister(struct pstore_info *);
 extern bool pstore_cannot_block_path(enum kmsg_dump_reason reason);
 
 #ifdef OPLUS_FEATURE_DUMPDEVICE
-/* Moved from ram.c */
+/*move from ram.c*/
 struct ramoops_context {
 	struct persistent_ram_zone **przs;	/* Oops dump zones */
 	struct persistent_ram_zone *cprz;	/* Console zone */
@@ -124,6 +122,6 @@ struct ramoops_context {
 	unsigned int device_info_read_cnt;
 	struct pstore_info pstore;
 };
-#endif /* OPLUS_FEATURE_DUMPDEVICE */
+#endif
 
 #endif /*_LINUX_PSTORE_H*/
