@@ -18,6 +18,13 @@
 #include <asm/page.h>
 #include <asm/pgtable.h>
 #include "internal.h"
+//#ifdef VENDOR_EDIT
+#include <linux/oplus_healthinfo/ion.h>
+//#endif /*VENDOR_EDIT*/
+
+#ifdef OPLUS_FEATURE_HEALTHINFO
+extern unsigned long gpu_total(void);
+#endif /* OPLUS_FEATURE_HEALTHINFO */
 
 void __attribute__((weak)) arch_report_meminfo(struct seq_file *m)
 {
@@ -153,7 +160,6 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "CmaFree:        ",
 		    global_page_state(NR_FREE_CMA_PAGES));
 #endif
-
 	hugetlb_report_meminfo(m);
 
 	arch_report_meminfo(m);
