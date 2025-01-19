@@ -123,6 +123,13 @@ void nmi_panic(struct pt_regs *regs, const char *msg)
 }
 EXPORT_SYMBOL(nmi_panic);
 
+#ifdef VENDOR_EDIT
+extern int panic_flush_device_cache(int timeout);
+#endif  /*VENDOR_EDIT*/
+#ifdef VENDOR_EDIT
+extern int get_download_mode(void);
+#endif  /*VENDOR_EDIT*/
+
 /**
  *	panic - halt the system
  *	@fmt: The text string to print
