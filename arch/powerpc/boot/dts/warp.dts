@@ -139,6 +139,7 @@
 					interrupt-parent = <&UIC0>;
 				};
 
+				fpga@2,2000 {
 					compatible = "pika,fpga-sgl";
 			   		reg = <0x00000002 0x00002000 0x00000200>;
 				};

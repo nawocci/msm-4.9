@@ -29,14 +29,6 @@
 #include "dsi_pwr.h"
 #include "msm_drv.h"
 
-#ifdef VENDOR_EDIT
-#include <linux/dsi_oppo_support.h>
-struct oppo_brightness_alpha {
-	u32 brightness;
-	u32 alpha;
-};
-#endif /*VENDOR_EDIT*/
-
 #define MAX_BL_LEVEL 4096
 #define MAX_BL_SCALE_LEVEL 1024
 #define MAX_AD_BL_SCALE_LEVEL 65535
@@ -223,10 +215,7 @@ struct dsi_panel {
 	enum dsi_dms_mode dms_mode;
 
 	bool sync_broadcast_en;
-#ifdef VENDOR_EDIT
-	bool is_hbm_enabled;
-	bool need_power_on_backlight;
-#endif
+
 	struct dsi_panel_exd_config exd_config;
 };
 
@@ -328,8 +317,5 @@ int dsi_panel_parse_esd_reg_read_configs(struct dsi_panel *panel,
 				struct device_node *of_node);
 
 void dsi_panel_ext_bridge_put(struct dsi_panel *panel);
-#ifdef VENDOR_EDIT
-int dsi_panel_tx_cmd_set(struct dsi_panel *panel,
-			   enum dsi_cmd_set_type type);
-#endif
+
 #endif /* _DSI_PANEL_H_ */

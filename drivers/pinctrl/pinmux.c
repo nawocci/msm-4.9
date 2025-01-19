@@ -514,21 +514,11 @@ void pinmux_disable_setting(struct pinctrl_setting const *setting)
 
 			gname = pctlops->get_group_name(pctldev,
 						setting->data.mux.group);
-//#ifndef OPLUS_FEATURE_CHG_BASIC
-/*			dev_warn(pctldev->dev,
+			dev_warn(pctldev->dev,
 				 "not freeing pin %d (%s) as part of "
 				 "deactivating group %s - it is already "
 				 "used for some other setting",
-				 pins[i], desc->name, gname);*/
-//#else
-			if (printk_ratelimit()) {
-				dev_warn(pctldev->dev,
-					 "not freeing pin %d (%s) as part of "
-					 "deactivating group %s - it is already "
-					 "used for some other setting",
-					 pins[i], desc->name, gname);
-			}
-//#endif
+				 pins[i], desc->name, gname);
 		}
 	}
 }

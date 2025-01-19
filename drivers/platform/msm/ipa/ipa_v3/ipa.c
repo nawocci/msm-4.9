@@ -2936,11 +2936,8 @@ void ipa3_q6_post_shutdown_cleanup(void)
 			if (ipa3_uc_is_gsi_channel_empty(client_idx)) {
 				IPAERR("fail to validate Q6 ch emptiness %d\n",
 					client_idx);
-				/*
-				*Indicates GSI hardware is stalled, unexpected.
-				* hardware state.
-				* Remove bug for adb reboot issue.
-				*/
+				BUG();
+				return;
 			}
 		}
 

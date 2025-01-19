@@ -21,7 +21,7 @@
 
 #ifdef arch_idle_time
 
-u64 get_idle_time(int cpu)
+static u64 get_idle_time(int cpu)
 {
 	u64 idle;
 
@@ -31,7 +31,7 @@ u64 get_idle_time(int cpu)
 	return idle;
 }
 
-u64 get_iowait_time(int cpu)
+static u64 get_iowait_time(int cpu)
 {
 	u64 iowait;
 
@@ -43,7 +43,7 @@ u64 get_iowait_time(int cpu)
 
 #else
 
-u64 get_idle_time(int cpu)
+static u64 get_idle_time(int cpu)
 {
 	u64 idle, idle_usecs = -1ULL;
 
@@ -59,7 +59,7 @@ u64 get_idle_time(int cpu)
 	return idle;
 }
 
-u64 get_iowait_time(int cpu)
+static u64 get_iowait_time(int cpu)
 {
 	u64 iowait, iowait_usecs = -1ULL;
 
